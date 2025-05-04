@@ -3,7 +3,7 @@ import {
   convertResponse,
   MetroIstanbulResponse,
   MetroIstanbulResponseRaw,
-} from "../types";
+} from "../models";
 
 /**
  * Axios instance configured for Metro Istanbul API.

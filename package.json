@@ -10,7 +10,8 @@
     "build": "tsc",
     "watch": "tsc -w",
     "lint": "eslint src",
-    "test": "tsc && node ./dist/test.js"
+    "test": "tsc && node ./dist/test.js",
+    "docs": "typedoc"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",
