@@ -1,3 +1,7 @@
+import { postRequest } from "../api/client";
+import { toExtendedLocalISOString } from "../lib/util";
+import { DirectionId } from "./directions";
+import { MetroLineId } from "./line";
 import { MetroStationId } from "./stations";
 
 /**
@@ -34,6 +38,22 @@ export class MetroStation {
     this.functionalCode = raw.FunctionalCode;
     this.detailInfo = convertStationDetail(raw.DetailInfo);
   }
+
+  static async fetchTimetableById(
+    stationId: MetroStationId,
+    directionId: DirectionId,
+    dateTime: Date = new Date()
+  ): Promise<MetroTimetable[]> {
+    const rawResponse = (
+      await postRequest<MetroTimetableRaw[]>("/GetTimeTable", {
+        BoardingStationId: stationId,
+        DirectionId: directionId,
+        DateTime: toExtendedLocalISOString(dateTime),
+      })
+    ).data;
+
+    return rawResponse.map(convertTimetable);
+  }
 }
 
 /**
@@ -53,6 +73,35 @@ export function convertStationDetail(
     masjid: raw.Masjid,
     latitude: raw.Latitude,
     longitude: raw.Longitude,
+  };
+}
+
+/**
+ * Converts raw timetable data into a structured `{@link MetroTimetable}`.
+ *
+ * @param raw - The raw detail data for timetables.
+ * @returns A structured `{@link MetroTimetable}` object.
+ */
+export function convertTimetable(raw: MetroTimetableRaw): MetroTimetable {
+  return {
+    boardingStationId: raw.BoardingStationId,
+    boardingStationName: raw.BoardingStationName,
+    lineId: raw.LineId,
+    lineName: raw.LineName,
+    firstStationId: raw.FirstStationId,
+    firstStation: raw.FirstStation,
+    lastStationId: raw.LastStationId,
+    lastStation: raw.LastStation,
+    languageText: {
+      tr: raw.LanguageText.TR,
+      en: raw.LanguageText.EN,
+      ar: raw.LanguageText.AR,
+    },
+    timeInfos: {
+      day: raw.TimeInfos.Day,
+      dayName: raw.TimeInfos.DayName,
+      times: raw.TimeInfos.Times,
+    },
   };
 }
 
@@ -95,4 +144,49 @@ export interface MetroStationDetailRaw {
   Masjid: boolean;
   Latitude: string;
   Longitude: string;
+}
+
+/**
+ * Raw structure of timetable.
+ */
+export interface MetroTimetableRaw {
+  BoardingStationId: number;
+  BoardingStationName: string;
+  LineId: number;
+  LineName: string;
+  FirstStationId: number;
+  FirstStation: string;
+  LastStationId: number;
+  LastStation: string;
+  LanguageText: {
+    TR: string;
+    EN: string;
+    AR: string;
+  };
+  TimeInfos: {
+    Day: number;
+    DayName: string | null;
+    Times: string[];
+  };
+}
+
+export interface MetroTimetable {
+  boardingStationId: MetroStationId;
+  boardingStationName: string;
+  lineId: MetroLineId;
+  lineName: string;
+  firstStationId: MetroStationId;
+  firstStation: string;
+  lastStationId: MetroStationId;
+  lastStation: string;
+  languageText: {
+    tr: string;
+    en: string;
+    ar: string;
+  };
+  timeInfos: {
+    day: number;
+    dayName: string | null;
+    times: string[];
+  };
 }
