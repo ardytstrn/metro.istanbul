@@ -139,9 +139,9 @@ export class MetroLine {
  */
 export function convertColor(raw: MetroLineColorRaw): MetroLineColor {
   return {
-    red: raw.Color_R,
-    green: raw.Color_G,
-    blue: raw.Color_B,
+    red: parseInt(raw.Color_R),
+    green: parseInt(raw.Color_G),
+    blue: parseInt(raw.Color_B),
   };
 }
 
@@ -161,9 +161,9 @@ function convertLineDirectionInfo(
  * RGB color representation for a metro line.
  */
 export interface MetroLineColor {
-  red: string;
-  green: string;
-  blue: string;
+  red: number;
+  green: number;
+  blue: number;
 }
 
 /**
