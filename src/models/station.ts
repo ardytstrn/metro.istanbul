@@ -1,4 +1,4 @@
-import { postRequest } from "../api/client";
+import { getRequest, postRequest } from "../api/client";
 import { toExtendedLocalISOString } from "../lib/util";
 import { DirectionId } from "./directions";
 import { MetroLineId } from "./line";
@@ -39,6 +39,23 @@ export class MetroStation {
     this.detailInfo = convertStationDetail(raw.DetailInfo);
   }
 
+  /**
+   * Fetches all the stations from the API.
+   */
+  static async fetchAll(): Promise<MetroStation[]> {
+    const rawResponse = (await getRequest<MetroStationRaw[]>("/GetStations"))
+      .data;
+
+    return rawResponse.map((rawStation) => new MetroStation(rawStation));
+  }
+
+  /**
+   * Fetches the timetable of the station.
+   *
+   * @param stationId
+   * @param directionId
+   * @param dateTime - Will access the timetable after this time
+   */
   static async fetchTimetableById(
     stationId: MetroStationId,
     directionId: DirectionId,
